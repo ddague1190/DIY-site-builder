@@ -1,35 +1,34 @@
-import fs from 'fs';
-import path from "path";
+import { connectDatabase, insertDocument, getAllDocuments } from "../../../utils/db-utils";
 
-const buildBannerPath = () => {
-    return path.join(process.cwd(), 'data', 'banner.json');
-}
+export default async function handler(req, res) {
+    const client = await connectDatabase('banner')
 
-const getBannerData = (filePath) => {
-    const fileData = fs.readFileSync(filePath);
-    return JSON.parse(fileData);
-}
-
-export default function handler(req, res) {
-    const data = getBannerData(buildBannerPath())
 
     if (req.method === 'POST') {
         const text = req.body.text;
         const source = req.body.source;
         const image = req.body.image;
-        const route = req.body.route;
+        const route = req.body.route.slice(1).split("/");
+
         const newBanner = {
-            'route': {
-                source,
-                image,
-                text
-            }
+            source,
+            image,
+            text,
+            route: route[0]
         }
-        const filePath = buildBannerPath();
-        data.push(newBanner);
-        fs.writeFileSync(filePath, JSON.stringify(data));
-        res.status(201).json({ result: 'Success', link: newLink })
+        const result = await insertDocument('banner', newBanner);
+
+        db.collection('banner').insertOne(newBanner);
+
+        res.status(201).json({ result: 'Success' })
     } else {
-        res.status(200).json({ result: 'Not added' })
+        try {
+            const documents = await getAllDocuments(client, 'banner')
+            client.close();
+        } catch (error) {
+            res.status(500).json({ message: 'Getting banners failed' })
+            return;
+        }
+        res.status(200).json({ result: documents })
     }
 }

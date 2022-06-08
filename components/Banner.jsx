@@ -1,23 +1,22 @@
-import React, { useState, useEffect, Suspense } from 'react'
+import React, { useState, useEffect } from 'react'
 import styles from '../styles/Banner.module.scss'
 import ModifyBanner from "./forms/ModifyBanner";
 import { useRouter } from "next/router";
 
 const Banner = () => {
-    const [banner, setBanner] = useState('')
+    const [banner, setBanner] = useState('');
     const router = useRouter();
-    const path = router.asPath === '/' ? '/home' : router.asPath;
-
-    useEffect(() => {
-        fetch(`/api/banner/${path}`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-            .then(response => response.json())
-            .then(data => setBanner(data.banner));
-    }, [router.asPath])
+    const path = router.asPath === '/' ? 'home' : router.asPath;
+    // useEffect(() => {
+    //     fetch(`/api/banner/${path}`, {
+    //         method: 'GET',
+    //         headers: {
+    //             'Content-Type': 'application/json'
+    //         }
+    //     })
+    //         .then(response => response.json())
+    //         .then(data => setBanner(data.banner));
+    // }, [router.asPath])
 
     return (
         <div className={styles.container}>
@@ -27,11 +26,11 @@ const Banner = () => {
             </div>
             <figure>
                 <blockquote cite="Site owner">
-                    <p>
+                    <p className={styles.text}>
                         {banner.text}
                     </p>
                 </blockquote>
-                <figcaption><cite>{banner.source}</cite></figcaption>
+                <figcaption className={styles.source}><cite>{banner.source}</cite></figcaption>
             </figure>
         </div>
     )

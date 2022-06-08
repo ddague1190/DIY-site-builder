@@ -15,6 +15,13 @@ const AddLink = ({ setLinks }) => {
 
     useEffect(() => {
         setFormData({ ...state, slug: slugify(state.link) })
+
+        return () => {
+            setFormData({
+                'link': '',
+                'slug': ''
+            })
+        }
     }, [state.link])
 
     const submitFormHandler = (e) => {
@@ -28,7 +35,11 @@ const AddLink = ({ setLinks }) => {
             }
         })
             .then(response => response.json())
-            .then(data => setLinks(data.links));
+            .then(data => {
+                if (data.links) {
+                    setLinks(data.links)
+                }
+            });
         setShow(false)
     }
 
@@ -56,7 +67,9 @@ const AddLink = ({ setLinks }) => {
                     </div>
                 </Portal>
                 :
-                <AddContentButton onClick={setShow.bind(true)} text='add primary link' />
+                <AddContentButton onClick={setShow.bind(true)} text='add a link' />
+
+
             }
         </div>
     )

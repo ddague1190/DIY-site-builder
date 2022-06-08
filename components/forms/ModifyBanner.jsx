@@ -1,11 +1,13 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useRef } from 'react'
 import Portal from "../utils/Portal";
 import { useForm } from "../../utils/useForm";
 import AddContentButton from "../utils/AddContentButton";
 import { useRouter } from "next/router";
 
 const ModifyBanner = ({ banner, setBanner }) => {
-    const prompt = banner ? 'Modify banner' : 'Add banner content';
+
+
+    const prompt = banner.text || banner.image ? 'Modify banner' : 'Add banner content';
     const ref = useRef();
     const [show, setShow] = useState(false);
     const [state, handleChange, setFormData] = useForm({
@@ -13,17 +15,14 @@ const ModifyBanner = ({ banner, setBanner }) => {
         'source': '',
         'image': ''
     })
-
     const router = useRouter();
-    
-
-
+    const path = router.asPath === '/' ? '/home' : router.asPath;
     const submitFormHandler = (e) => {
-        e.preventDefault();
-
+        e.preventDefault(); 
+        setBanner(state);
         fetch('/api/banner/', {
             method: 'POST',
-            body: JSON.stringify({ ...state, }),
+            body: JSON.stringify({...state, route: path}),
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -40,15 +39,19 @@ const ModifyBanner = ({ banner, setBanner }) => {
             {show ?
                 <Portal informChildFunction={informChildFunction} >
                     <div className='portal-content__form'>
-                        <h2>Add link</h2>
+                        <h2>Banner content</h2>
                         <form>
                             <div>
-                                <label htmlFor='link'>Link name</label>
-                                <input autoFocus ref={ref} value={state.link} onChange={handleChange} id='link' type='text' name='link' />
+                                <label htmlFor='textarea'>Text</label>
+                                <textarea autoFocus id='textarea' onChange={handleChange} name='text' value={state.text} />
                             </div>
                             <div>
-                                <label htmlFor='slug'>Slug</label>
-                                <input value={state.slug} onChange={handleChange} id='slug' type='text' name='slug' />
+                                <label htmlFor='source'>Source (if applicable)</label>
+                                <input value={state.source} onChange={handleChange} id='source' type='text' name='source' />
+                            </div>
+                            <div>
+                                <label htmlFor='image'>Image</label>
+                                <input value={state.image} onChange={handleChange} id='image' type='text' name='image' />
                             </div>
                             <button onClick={submitFormHandler}>
                                 Submit
